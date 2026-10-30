@@ -1,3 +1,5 @@
+![Banner](banner.png)
+
 # artd-Binary-Diff-Tool
 Compares two binary files and highlights the differences in their assembly code, facilitating vulnerability analysis and patch diffing. - Focused on Analyzes and disassembles compiled artifacts (e.g., ELF, PE, Mach-O) to identify potential vulnerabilities, embedded payloads, or hidden functionality. Leverages disassembly and parsing libraries to extract and present meaningful information about the artifact's structure and code execution flow.
 
