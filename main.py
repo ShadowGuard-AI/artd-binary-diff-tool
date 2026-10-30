@@ -25,6 +25,24 @@ def setup_argparse():
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging.")
     return parser
 
+def _is_executable_section(section):
+    """True when lief marks this section as executable code.
+
+    The original call, section.has_characteristic(ELF.SECTION_FLAGS...),
+    names an API current lief builds do not have, so every real binary
+    failed here. What this lief exposes depends on the format: ELF
+    sections carry a flags_list with an EXECINSTR entry, PE sections
+    carry a characteristics bitmask with MEM_EXECUTE (0x20000000).
+    """
+    flags_list = getattr(section, "flags_list", None)
+    if flags_list is not None:
+        return any(str(flag).endswith("EXECINSTR") for flag in flags_list)
+    characteristics = getattr(section, "characteristics", None)
+    if characteristics is not None:
+        return bool(characteristics & 0x20000000)
+    return bool(getattr(section, "flags", 0) & 0x4)
+
+
 def disassemble(file_path, arch):
     """
     Disassembles a binary file using LIEF and Capstone.
@@ -37,6 +55,9 @@ def disassemble(file_path, arch):
         dict: A dictionary where keys are addresses and values are assembly instructions.
               Returns None on error.
     """
+    # Current lief builds raise lief.exception subclasses whose names have
+    # moved between releases, so this catches Exception rather than naming
+    # one spelling that a newer lief may not have at all.
     try:
         binary = lief.parse(file_path)
         if binary is None:
@@ -57,16 +78,13 @@ def disassemble(file_path, arch):
 
         disassembly = {}
         for section in binary.sections:
-            if section.has_characteristic(lief.ELF.SECTION_FLAGS.EXECUTE):
+            if _is_executable_section(section):
                 logging.info(f"Disassembling section: {section.name}")
                 for i in md.disasm(section.content, section.virtual_address):
                     disassembly[i.address] = i.mnemonic + " " + i.op_str
 
         return disassembly
 
-    except lief.bad_file as e:
-        logging.error(f"LIEF Error parsing {file_path}: {e}")
-        return None
     except Exception as e:
         logging.error(f"Error disassembling {file_path}: {e}")
         return None
@@ -121,6 +139,8 @@ def validate_file(file_path):
 
 
 def write_diff_to_file(diff, output_file):
+    # Returns False on a failed write so main can exit 1. Before, the error
+    # was only logged and the run still reported completion.
     """
     Writes the disassembly differences to a file.
 
@@ -143,8 +163,10 @@ def write_diff_to_file(diff, output_file):
                 f.write(f"  0x{addr:x}: Original: {original} | Modified: {modified}\n")
 
         logging.info(f"Diff written to {output_file}")
+        return True
     except Exception as e:
         logging.error(f"Error writing diff to file: {e}")
+        return False
 
 
 def print_diff_to_console(diff):
@@ -202,7 +224,8 @@ def main():
 
         # Output the diff
         if args.output:
-            write_diff_to_file(diff, args.output)
+            if not write_diff_to_file(diff, args.output):
+                sys.exit(1)
         else:
             print_diff_to_console(diff)
 
@@ -216,12 +239,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Usage Examples:
-# 1. Compare two binaries and print the diff to the console:
-#    python artd_binary_diff_tool.py file1.bin file2.bin
-#
-# 2. Compare two binaries with x64 architecture and save the diff to a file:
-#    python artd_binary_diff_tool.py file1.bin file2.bin -a x64 -o diff.txt
-#
-# 3. Enable verbose logging:
-#    python artd_binary_diff_tool.py file1.bin file2.bin -v
