@@ -80,6 +80,13 @@ def disassemble(file_path, arch):
         for section in binary.sections:
             if _is_executable_section(section):
                 logging.info(f"Disassembling section: {section.name}")
+                # Capstone is run as one linear sweep from the section
+                # start. Data embedded in a code section desyncs the
+                # sweep, and the iterator simply stops at the first
+                # bytes it cannot decode, so the tail of such a section
+                # is missing from the result with no sign of the gap.
+                # Two sections sharing an address range would also
+                # overwrite each other in this dict.
                 for i in md.disasm(section.content, section.virtual_address):
                     disassembly[i.address] = i.mnemonic + " " + i.op_str
 
@@ -102,6 +109,13 @@ def diff_assemblies(assembly1, assembly2):
         dict: A dictionary containing the differences between the two assemblies.
               Keys: 'added', 'removed', 'modified'
     """
+    # The comparison is keyed on absolute addresses, with no attempt
+    # to align the two instruction streams. One instruction inserted
+    # early in a function shifts every later address in the second
+    # binary, so a one line change can read as hundreds of removed and
+    # added instructions rather than one modified spot. This diff is
+    # honest for binaries built to load at the same addresses with
+    # stable layouts, and mostly noise when they were not.
     added = {}
     removed = {}
     modified = {}
