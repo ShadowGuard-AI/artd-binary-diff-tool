@@ -3,162 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Artd Binary Diff Tool: what it is, how it runs, where it stops</title>
-<meta name="description" content="Artd Binary Diff Tool is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.">
+<title>artd-binary-diff-tool: The Planetarium's Star Ball</title>
+<meta name="description" content="Compares two binary files and reports the differences in their disassembled code, as added, removed, and modified instructions keyed by address.">
 <style>
-:root {
-  --bg: #0e2a22; --panel: #14382d; --ink: #eef0e2;
-  --mut: #1b4b3c;
-  --acc: #f4d06f; --acc2: #ec8a7a;
-  --line: #14382d;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: Verdana, Geneva, sans-serif; line-height: 1.55; }
-code, pre, .mono { font-family: 'Lucida Console', monospace; }
-a { color: var(--acc2); }
-.hero { padding: 3rem 6vw 1rem; }
-.hero img.banner { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; }
-.logo { width: 92px; height: 92px; border-radius: 18px;
-  border: 1px solid var(--line); }
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.1em; }
-h2 { border-bottom: 2px solid var(--acc); padding-bottom: 0.2em;
-  margin-top: 2em; }
-.lede { font-size: 1.15rem; max-width: 62ch; }
-main { padding: 0 6vw 3rem; max-width: 1180px; margin: 0 auto; }
-.grid { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 1rem 1.2rem; }
-.card.pop { animation: rise 0.7s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; } }
-pre.code { background: #101014; color: #e8e6df; padding: 1rem 1.2rem;
-  border-radius: 12px; overflow-x: auto; font-size: 0.86rem;
-  border-left: 5px solid var(--acc); }
-table { border-collapse: collapse; width: 100%; }
-td, th { border-bottom: 1px solid var(--line); padding: 0.45rem 0.6rem;
-  text-align: left; }
-.shots { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.shots img { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; background: #f4f1e8; }
-footer { padding: 2rem 6vw; border-top: 1px solid var(--line);
-  color: var(--mut); }
-.rail { display: flex; gap: 1.2rem; align-items: flex-start; }
-.rail nav { position: sticky; top: 1rem; min-width: 180px; }
-@media (max-width: 760px) { .rail { flex-direction: column; }
-  .rail nav { position: static; } }
-@media (prefers-reduced-motion: reduce) {
-  .card.pop { animation: none; } * { scroll-behavior: auto; } }
+@font-face{font-family:'Badeen Display';src:url('fonts/BadeenDisplay.ttf') format('truetype');}
+@font-face{font-family:'Bitter';src:url('fonts/Bitter.ttf') format('truetype');}
+:root{--green:#14402a;--green-deep:#0c2417;--cream:#f6eed6;--brass:#c2a052;--oak:#8a6a42;--ink:#26302a}
+*{box-sizing:border-box}body{margin:0;background:var(--green-deep);color:var(--ink);font-family:'Bitter',serif;line-height:1.65}
+h1,h2,h3{font-family:'Badeen Display',sans-serif;color:var(--green);letter-spacing:.02em}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;background:var(--green-deep)}
+.hero img.heroimg{width:100%;height:60vh;object-fit:cover;display:block}
+.hero .in{padding:1rem 6vw 2rem;max-width:1100px;margin:0 auto;width:100%}
+.hero h1{color:var(--cream);font-size:2.8rem;margin:.4rem 0}
+.hero p{color:#cfd8c8}
+.logo{width:190px;border-radius:6px}
+main{padding:0 6vw 3rem;max-width:1100px;margin:0 auto}
+nav{display:flex;gap:1rem;flex-wrap:wrap;margin:1.1rem 0}
+.disc{position:relative;display:inline-flex;align-items:center;justify-content:center;width:138px;height:138px;border-radius:50%;text-decoration:none;background:radial-gradient(circle at 50% 38%,#d8bc72 0 6%,#a8843e 7% 58%,#7c5c26 60%);color:var(--cream);font-family:'Badeen Display',sans-serif;font-size:.92rem;text-align:center}
+.disc span{background:var(--green);padding:.28rem .4rem;width:100%}
+.disc:before{content:'';position:absolute;inset:12px;border-radius:50%;background:radial-gradient(circle at 30% 26%,#2e2418 0 3px,transparent 4px),radial-gradient(circle at 62% 18%,#2e2418 0 2px,transparent 3px),radial-gradient(circle at 76% 44%,#2e2418 0 3px,transparent 4px),radial-gradient(circle at 44% 66%,#2e2418 0 2px,transparent 3px),radial-gradient(circle at 22% 58%,#2e2418 0 2px,transparent 3px)}
+.disc:after{content:'';position:absolute;left:16px;right:16px;bottom:9px;height:2px;background:transparent}
+.disc:hover:after{background:var(--cream)}
+.disc:hover{box-shadow:inset 0 0 0 3px var(--brass),0 0 0 2px rgba(246,238,214,.35)}
+.disc:active{filter:brightness(.85)}
+.disc:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+.case{background:var(--cream);padding:.4rem 1.5rem 1.3rem;margin:1.8rem 0;border:6px solid var(--oak);position:relative;box-shadow:inset 0 0 0 2px #d8c9a2}
+.case:after{content:'';position:absolute;right:8px;bottom:8px;width:22px;height:14px;background:var(--brass);border:1px solid #7c5c26}
+.case h2{border-bottom:2px solid var(--oak);padding-bottom:.3rem;font-size:1.8rem}
+pre{background:var(--green);color:var(--cream);padding:1rem;overflow-x:auto}
+a{color:#5c4512;text-decoration:none}
+a:before{content:'';display:inline-block;width:13px;height:13px;margin-right:.45em;vertical-align:-1px;background:#e9dfc2;border:1px solid var(--oak);background-image:radial-gradient(circle at 34% 34%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 64% 58%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 40% 74%,#26302a 0 1.6px,transparent 2.2px)}
+a:hover:before{background-image:radial-gradient(circle at 34% 34%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 64% 58%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 40% 74%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 76% 24%,#b42026 0 2px,transparent 2.6px)}
+.disc:before{z-index:0}.disc span{position:relative;z-index:1}
+.frame{background:#fbf6e4;border:5px solid var(--oak);padding:.2rem 1.3rem 1rem;margin:1.3rem 0;box-shadow:inset 0 0 22px rgba(138,106,66,.28)}
+.pin{height:30px;margin:2rem 0;border-bottom:3px solid var(--oak);position:relative}
+.pin:before{content:'';position:absolute;left:4%;top:14px;width:11px;height:11px;border-radius:50%;background:var(--brass);box-shadow:44vw 0 0 var(--brass),88vw 0 0 var(--brass)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
+@media(max-width:760px){.cards{grid-template-columns:1fr}.pin:before{box-shadow:40vw 0 0 var(--brass),80vw 0 0 var(--brass)}}
+footer{padding:1rem 6vw 2.4rem;max-width:1100px;margin:0 auto;color:#cfd8c8}
 </style>
 </head>
-<body class="layout-term">
-<!-- This page exists for artd-binary-diff-tool alone: the layout (terminal-frame),
-     the colors, and the type were picked for this project, not
-     shared with the other project pages. The code block below is
-     copied from the file it names, line for line. If it looks
-     plain, that is because the project is plain, and I would
-     rather the page match the project than dress it up. The one
-     thing I will not do here is oversell: what this project does
-     not do is stated on the page, not hidden from it. -->
+<body>
 <header class="hero">
-  <img class="logo" src="assets/logo.png" alt="Artd Binary Diff Tool logo">
-  <img class="banner" src="assets/banner.png" alt="">
-  <h1>Artd Binary Diff Tool</h1>
-  <p class="mono"><a href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool">github.com/ShadowGuard-AI/artd-binary-diff-tool</a></p>
+<img class="heroimg" src="assets/intro-banner.png" alt="Planetarium chamber before a show: the lit star ball throwing a made sky onto the dome, empty seats, nothing readable">
+<div class="in">
+<img class="logo" src="assets/logo.png" alt="Pierced brass star ball in its oak cradle with one lit aperture">
+<h1>artd-binary-diff-tool</h1>
+<p>The chamber itself, topics set around the curved wall in the order a visitor would walk them. One pattern of points laid against another, and the eye finds where they differ.</p>
+<nav>
+<a class="disc" href="#panel1"><span>The comparison</span></a>
+<a class="disc" href="#panel2"><span>How it is made</span></a>
+<a class="disc" href="#panel4"><span>Calling it</span></a>
+<a class="disc" href="#panel6"><span>The known limit</span></a>
+</nav>
+</div>
 </header>
-
 <main>
-  <section class="rail">
-    <nav aria-label="on this page">
-      <p class="mono"><a href="#run">Run it</a><br>
-      <a href="#files">The files</a><br>
-      <a href="#sheets">The sheets</a><br>
-      <a href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool">The repo</a></p>
-    </nav>
-    <div>
-      <p class="lede">Artd Binary Diff Tool is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.</p>
-      <div class="grid">
-        <div class="card pop"><h3>What it is</h3>
-          <p>Artd Binary Diff Tool: 3 files, 248 counted
-          lines across Python 227, Markdown 17, Text 4. One job, done in the
-          open, in files you can read.</p></div>
-        <div class="card pop"><h3>The biggest piece</h3>
-          <p><code>main.py</code> carries the most
-          lines. If the project grows, that file is where the growth
-          lands first, for better or worse.</p></div>
-        <div class="card pop"><h3>The honest gap</h3>
-          <p>No test files yet. That is the honest gap, and the roadmap in the visuals folder says what the first one should cover.</p></div>
-      </div>
-      <section id="run">
-        <h2>Run it</h2>
-        <p>The repo README has the exact commands for this one. The
-        shape is the shape for most of my projects: clone it, read the
-        top file first so you know what will happen, then run it on
-        something you do not mind breaking.</p>
-        <p class="mono">$ git clone https://github.com/ShadowGuard-AI/artd-binary-diff-tool.git<br>$ cd artd-binary-diff-tool</p>
-      </section>
-      
-  <section aria-label="real code">
-    <h2>The code, as it sits in the repo</h2>
-    <p>From <code>main.py</code>, line 11 on. I did
-    not tidy it for the page. What you see is what the file has.</p>
-    <pre class="code"><code>logging.basicConfig(level=logging.INFO, format=&#x27;%(asctime)s - %(levelname)s - %(message)s&#x27;)
-
-def setup_argparse():
-    &quot;&quot;&quot;
-    Sets up the argument parser for the command-line interface.
-    Returns:
-        argparse.ArgumentParser: The argument parser object.
-    &quot;&quot;&quot;
-    parser = argparse.ArgumentParser(description=&quot;Compares two binary files and highlights the differences in their assembly code.&quot;)
-    parser.add_argument(&quot;file1&quot;, help=&quot;The first binary file to compare.&quot;)
-    parser.add_argument(&quot;file2&quot;, help=&quot;The second binary file to compare.&quot;)
-    parser.add_argument(&quot;-a&quot;, &quot;--architecture&quot;, choices=[&#x27;x86&#x27;, &#x27;x64&#x27;, &#x27;arm&#x27;, &#x27;arm64&#x27;], default=&#x27;x86&#x27;,
-                        help=&quot;The architecture of the binary files (default: x86).&quot;)
-    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, help=&quot;Output file to save the diff results. If not provided, prints to console.&quot;, default=None)
-    parser.add_argument(&quot;-v&quot;, &quot;--verbose&quot;, action=&quot;store_true&quot;, help=&quot;Enable verbose logging.&quot;)
-    return parser
-
-def disassemble(file_path, arch):
-    &quot;&quot;&quot;
-    Disassembles a binary file using LIEF and Capstone.
-
-    Args:</code></pre>
-  </section>
-      <section id="files">
-        <h2>The files that matter</h2>
-        <table><tr><th>File</th><th>Lines</th></tr>
-        <tr><td><code>main.py</code></td><td>227</td></tr>
-        <tr><td><code>README.md</code></td><td>17</td></tr>
-        <tr><td><code>requirements.txt</code></td><td>4</td></tr>
-        </table>
-        <p>Names doing the work: <span class="mono">setup_argparse, disassemble, diff_assemblies, validate_file, write_diff_to_file, print_diff_to_console, main</span>.</p>
-      </section>
-      <section id="sheets">
-        <h2>Drawn by hand</h2>
-        <p>I sketch my projects on notebook paper so I have to
-        understand them well enough to draw them. The full set,
-        with the counts and how they were counted, is the
-        <a href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool/tree/main/artd-binary-diff-tool-Visuals">artd-binary-diff-tool-Visuals</a>
-        folder in the repo. Nothing is drawn over the binder holes.
-        That is a rule, not a style.</p>
-        <div class="shots">
-          <img src="assets/architecture.png" alt="Hand drawn architecture sheet for Artd Binary Diff Tool">
-          <img src="assets/flowchart.png" alt="Hand drawn flowchart sheet for Artd Binary Diff Tool">
-          <img src="assets/product-map.png" alt="Hand drawn product map sheet for Artd Binary Diff Tool">
-        </div>
-      </section>
-    </div>
-  </section>
+<section class="case" id="panel1"><h2>Two Binaries, One Report of Differences</h2>
+<p>artd-binary-diff-tool compares two binary files and reports the differences in their disassembled code, for vulnerability analysis and patch diffing.</p>
+<p>Two purposes only are named in the source, and this panel names those two and no others.</p>
+</section>
+<div class="pin"></div>
+<section class="case" id="panel2"><h2>How the Comparison Is Made</h2>
+<p>Parsed with LIEF. Disassembled with Capstone. Keyed by Address.</p>
+<p>The tool parses each binary with LIEF, disassembles its executable sections with Capstone, and reports the differences keyed by address, in three shapes:</p>
+<p>Added instructions: present in the second binary, not at that address in the first.</p>
+<p>Removed instructions: present in the first binary, gone at that address in the second.</p>
+<p>Modified instructions: the same address carrying a different instruction.</p>
+<p>Together those three are the entire shape of the report.</p>
+</section>
+<div class="pin"></div>
+<section class="case" id="panel3"><h2>Getting It Running</h2>
+<pre>git clone https://github.com/ShadowGuard-AI/artd-binary-diff-tool
+cd artd-binary-diff-tool
+pip install -r requirements.txt</pre>
+<p>This repository's clone line names the correct account, ShadowGuard-AI. That is noted here as a plain fact, in contrast to lines a visitor may have met elsewhere in this fleet.</p>
+</section>
+<div class="pin"></div>
+<section class="case" id="panel4"><h2>Calling the Comparison</h2>
+<pre>python3 main.py FILE1 FILE2 [-a ARCH] [-o OUTPUT] [-v]</pre>
+<p>FILE1 is the first binary file to compare and FILE2 is the second.</p>
+<div class="cards">
+<div class="case"><h3>-h</h3><p>Shows help and exits.</p></div>
+<div class="case"><h3>-a, --architecture</h3><p>Takes x86 as the default, with x64, arm, and arm64 as the other choices.</p></div>
+<div class="case"><h3>-o, --output</h3><p>Names a file to save the diff results to. Without it, the diff prints to console.</p></div>
+<div class="case"><h3>-v, --verbose</h3><p>Turns on verbose logging.</p></div>
+</div>
+</section>
+<div class="pin"></div>
+<section class="case" id="panel5"><h2>What Was and Was Not Verified</h2>
+<p>A missing input file, or a path that is not a file, exits 1.</p>
+<div class="frame"><h3>Live Run Not Possible in the Documenting Environment</h3>
+<p>The source carries its own candour in full: a live run was not possible in the documenting environment because the lief and capstone packages are not installed there and installs were not permitted in that wave, the parameter list was taken from the argument parser in main.py, and the file compiles cleanly.</p></div>
+<p>No sample diff, timing, or success story is shown on this wall, because the source offers none.</p>
+</section>
+<div class="pin"></div>
+<section class="case" id="panel6"><h2>The Known Limit</h2>
+<div class="frame"><h3>No Alignment of the Two Instruction Streams</h3>
+<p>The diff is keyed on absolute addresses with no alignment of the two instruction streams, so one inserted instruction early in a function can read as many added and removed instructions rather than one modified spot. The limit is given a panel of its own here, rather than a footnote.</p></div>
+<p>Licence closes the circuit of the wall: MIT License, See LICENSE.</p>
+<p><a href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool">The repository on GitHub</a></p>
+</section>
 </main>
-<footer>
-  <p>Artd Binary Diff Tool is one of my projects. This page was written
-  from the repo itself on 2026-10-30: the counts are the
-  repo's counts, the code is the repo's code, and the gaps are the
-  repo's gaps.</p>
-</footer>
+<footer><p>Theme: The Planetarium's Star Ball. Type: Badeen Display for headings, Bitter for reading, both SIL Open Font License 1.1. The lettering reference Techno Sphere was reference only and is not embedded.</p></footer>
 </body>
 </html>

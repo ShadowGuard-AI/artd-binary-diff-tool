@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" role="img" aria-label="Planetarium scene: one cluster brightens, the star ball turns a fraction, a stray point crosses a headrest">
+<rect width="800" height="130" fill="#16281e"/>
+<g opacity="0.45"><circle cx="90" cy="34" r="3" fill="#f6eed6"/><circle cx="126" cy="46" r="3" fill="#f6eed6"/><circle cx="162" cy="58" r="3" fill="#f6eed6"/><circle cx="198" cy="34" r="3" fill="#f6eed6"/><circle cx="234" cy="46" r="3" fill="#f6eed6"/><circle cx="270" cy="58" r="3" fill="#f6eed6"/><circle cx="306" cy="34" r="3" fill="#f6eed6"/><circle cx="342" cy="46" r="3" fill="#f6eed6"/><animate attributeName="opacity" values="0.45;1;1;0.45;0.45" keyTimes="0;0.2;0.4;0.6;1" dur="24s" repeatCount="indefinite"/></g>
+<g opacity="0.45"><circle cx="520" cy="30" r="2.6" fill="#f6eed6"/><circle cx="550" cy="40" r="2.6" fill="#f6eed6"/><circle cx="580" cy="50" r="2.6" fill="#f6eed6"/><circle cx="610" cy="60" r="2.6" fill="#f6eed6"/><circle cx="640" cy="30" r="2.6" fill="#f6eed6"/><circle cx="670" cy="40" r="2.6" fill="#f6eed6"/><circle cx="700" cy="50" r="2.6" fill="#f6eed6"/><circle cx="730" cy="60" r="2.6" fill="#f6eed6"/><animate attributeName="opacity" values="0.45;0.45;1;1;0.45" keyTimes="0;0.5;0.65;0.85;1" dur="24s" repeatCount="indefinite"/></g>
+<rect y="130" width="800" height="46" fill="#342c1e"/>
+<rect x="330" y="168" width="140" height="26" fill="#7a5c36"/>
+<g><circle cx="400" cy="128" r="52" fill="#986f40" stroke="#c8a860" stroke-width="3"/>
+<circle cx="368" cy="104" r="6" fill="#2e2418"/><circle cx="392" cy="94" r="4" fill="#2e2418"/><circle cx="428" cy="116" r="7" fill="#2e2418"/><circle cx="404" cy="140" r="5" fill="#2e2418"/><circle cx="366" cy="146" r="4" fill="#2e2418"/><circle cx="356" cy="98" r="3.4" fill="#fffbe8"/>
+<animateTransform attributeName="transform" type="rotate" values="0 400 128;6 400 128;0 400 128" dur="30s" repeatCount="indefinite"/></g>
+<rect y="194" width="800" height="46" fill="#123524"/>
+<g fill="#1a5236"><rect x="60" y="202" width="200" height="34" rx="14"/><rect x="300" y="202" width="200" height="34" rx="14"/><rect x="540" y="202" width="200" height="34" rx="14"/></g>
+<circle cx="80" cy="216" r="3.4" fill="#f6eed6"><animate attributeName="cx" values="80;240;240" keyTimes="0;0.8;1" dur="30s" repeatCount="indefinite"/></circle>
+</svg>
