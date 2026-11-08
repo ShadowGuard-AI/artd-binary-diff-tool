@@ -1,10 +1,10 @@
-![Planetarium chamber before a show: the lit star ball throwing a made sky onto the dome, empty seats, nothing readable](intro-banner.png)
+![Two player piano rolls turning on parallel spindles inside an open piano case, the near roll's slot pattern running denser than the far roll's across the brass tracker bar](intro-banner.png)
 
 # artd-binary-diff-tool
 
-![The planetarium chamber with the star ball lit and the project name cast in brass across the platform front](banner.png)
+![Two player piano rolls of different ages lying side by side on a long brass tracker bar over a lightbox in a repair workshop, one red felt ring resting on the nearer roll](banner.png)
 
-![Pierced brass star ball in its oak cradle with one lit aperture, the heading plate](logo.png)
+![A cream player piano roll curving over a brass tracker bar, one red felt ring lying on the paper over a slot, the heading plate](logo.png)
 
 ![Chamber scene: brightness travels across one projected cluster while the star ball turns a fraction](scene.svg)
 
