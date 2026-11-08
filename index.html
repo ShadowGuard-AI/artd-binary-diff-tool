@@ -3,108 +3,100 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>artd-binary-diff-tool: The Planetarium's Star Ball</title>
-<meta name="description" content="Compares two binary files and reports the differences in their disassembled code, as added, removed, and modified instructions keyed by address.">
+<title>artd-binary-diff-tool: The Roll Comparison</title>
 <style>
-@font-face{font-family:'Badeen Display';src:url('fonts/BadeenDisplay.ttf') format('truetype');}
-@font-face{font-family:'Bitter';src:url('fonts/Bitter.ttf') format('truetype');}
-:root{--green:#14402a;--green-deep:#0c2417;--cream:#f6eed6;--brass:#c2a052;--oak:#8a6a42;--ink:#26302a}
-*{box-sizing:border-box}body{margin:0;background:var(--green-deep);color:var(--ink);font-family:'Bitter',serif;line-height:1.65}
-h1,h2,h3{font-family:'Badeen Display',sans-serif;color:var(--green);letter-spacing:.02em}
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;background:var(--green-deep)}
-.hero img.heroimg{width:100%;height:60vh;object-fit:cover;display:block}
-.hero .in{padding:1rem 6vw 2rem;max-width:1100px;margin:0 auto;width:100%}
-.hero h1{color:var(--cream);font-size:2.8rem;margin:.4rem 0}
-.hero p{color:#cfd8c8}
-.logo{width:190px;border-radius:6px}
-main{padding:0 6vw 3rem;max-width:1100px;margin:0 auto}
-nav{display:flex;gap:1rem;flex-wrap:wrap;margin:1.1rem 0}
-.disc{position:relative;display:inline-flex;align-items:center;justify-content:center;width:138px;height:138px;border-radius:50%;text-decoration:none;background:radial-gradient(circle at 50% 38%,#d8bc72 0 6%,#a8843e 7% 58%,#7c5c26 60%);color:var(--cream);font-family:'Badeen Display',sans-serif;font-size:.92rem;text-align:center}
-.disc span{background:var(--green);padding:.28rem .4rem;width:100%}
-.disc:before{content:'';position:absolute;inset:12px;border-radius:50%;background:radial-gradient(circle at 30% 26%,#2e2418 0 3px,transparent 4px),radial-gradient(circle at 62% 18%,#2e2418 0 2px,transparent 3px),radial-gradient(circle at 76% 44%,#2e2418 0 3px,transparent 4px),radial-gradient(circle at 44% 66%,#2e2418 0 2px,transparent 3px),radial-gradient(circle at 22% 58%,#2e2418 0 2px,transparent 3px)}
-.disc:after{content:'';position:absolute;left:16px;right:16px;bottom:9px;height:2px;background:transparent}
-.disc:hover:after{background:var(--cream)}
-.disc:hover{box-shadow:inset 0 0 0 3px var(--brass),0 0 0 2px rgba(246,238,214,.35)}
-.disc:active{filter:brightness(.85)}
-.disc:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
-.case{background:var(--cream);padding:.4rem 1.5rem 1.3rem;margin:1.8rem 0;border:6px solid var(--oak);position:relative;box-shadow:inset 0 0 0 2px #d8c9a2}
-.case:after{content:'';position:absolute;right:8px;bottom:8px;width:22px;height:14px;background:var(--brass);border:1px solid #7c5c26}
-.case h2{border-bottom:2px solid var(--oak);padding-bottom:.3rem;font-size:1.8rem}
-pre{background:var(--green);color:var(--cream);padding:1rem;overflow-x:auto}
-a{color:#5c4512;text-decoration:none}
-a:before{content:'';display:inline-block;width:13px;height:13px;margin-right:.45em;vertical-align:-1px;background:#e9dfc2;border:1px solid var(--oak);background-image:radial-gradient(circle at 34% 34%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 64% 58%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 40% 74%,#26302a 0 1.6px,transparent 2.2px)}
-a:hover:before{background-image:radial-gradient(circle at 34% 34%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 64% 58%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 40% 74%,#26302a 0 1.6px,transparent 2.2px),radial-gradient(circle at 76% 24%,#b42026 0 2px,transparent 2.6px)}
-.disc:before{z-index:0}.disc span{position:relative;z-index:1}
-.frame{background:#fbf6e4;border:5px solid var(--oak);padding:.2rem 1.3rem 1rem;margin:1.3rem 0;box-shadow:inset 0 0 22px rgba(138,106,66,.28)}
-.pin{height:30px;margin:2rem 0;border-bottom:3px solid var(--oak);position:relative}
-.pin:before{content:'';position:absolute;left:4%;top:14px;width:11px;height:11px;border-radius:50%;background:var(--brass);box-shadow:44vw 0 0 var(--brass),88vw 0 0 var(--brass)}
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
-@media(max-width:760px){.cards{grid-template-columns:1fr}.pin:before{box-shadow:40vw 0 0 var(--brass),80vw 0 0 var(--brass)}}
-footer{padding:1rem 6vw 2.4rem;max-width:1100px;margin:0 auto;color:#cfd8c8}
+@font-face { font-family: "Marko One"; src: url("fonts/MarkoOne-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Maitree"; src: url("fonts/Maitree-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Maitree"; src: url("fonts/Maitree-700.woff2") format("woff2"); font-weight: 700; }
+:root {
+  --paper: #fffdf6; --cream: #f6f0e2; --ink: #2f2a20; --soft: #6f675a;
+  --brass: #a07d2c; --red: #b3392e; --line: #e0d5ba; --card: #ffffff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--ink); font-family: "Maitree", serif; font-size: 17.5px; line-height: 1.55; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px 64px; }
+header.hero { text-align: center; padding: 52px 0 8px; }
+img.hero-logo { width: min(430px, 82vw); border-radius: 10px; box-shadow: 0 10px 34px rgba(47,42,32,.22); }
+h1, h2 { font-family: "Marko One", serif; font-weight: 400; line-height: 1.15; }
+h1 { font-size: clamp(30px, 5.4vw, 50px); margin: 26px 0 6px; }
+h2 { font-size: 27px; margin: 0 0 12px; border-bottom: 2px solid var(--line); padding-bottom: 7px; }
+.tagline { color: var(--soft); font-size: 19px; margin: 0 auto; max-width: 640px; }
+.btns { margin: 22px 0 6px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+a.btn { font-family: "Marko One", serif; text-decoration: none; padding: 11px 22px; border-radius: 999px; border: 2px solid var(--brass); color: var(--brass); background: transparent; }
+a.btn.solid { background: var(--brass); color: #fff; }
+figure { margin: 30px 0; }
+figure img { width: 100%; border-radius: 10px; display: block; box-shadow: 0 8px 28px rgba(47,42,32,.18); }
+figcaption { color: var(--soft); font-size: 15.5px; text-align: center; margin-top: 9px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 34px 0; }
+.fact { background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--brass); border-radius: 8px; padding: 14px 16px; }
+.fact b { display: block; font-family: "Marko One", serif; font-weight: 400; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--brass); margin-bottom: 4px; }
+section { margin: 38px 0; }
+code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: #2c2618; color: #f5edd8; padding: 15px 18px; border-radius: 8px; overflow-x: auto; font-size: 15px; }
+table { border-collapse: collapse; width: 100%; background: var(--card); }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left; vertical-align: top; }
+th { font-family: "Marko One", serif; font-weight: 400; background: var(--cream); }
+.hold { background: #fdf6ec; border: 1px solid #ecd9ae; border-left: 6px solid var(--brass); border-radius: 8px; padding: 16px 20px; }
+.hold h2 { border: none; padding: 0; }
+.hold ul { margin: 8px 0 4px; padding-left: 20px; }
+footer { margin-top: 52px; border-top: 2px solid var(--line); padding-top: 16px; color: var(--soft); font-size: 15px; text-align: center; }
 </style>
 </head>
 <body>
+<div class="wrap">
 <header class="hero">
-<img class="heroimg" src="assets/intro-banner.png" alt="Planetarium chamber before a show: the lit star ball throwing a made sky onto the dome, empty seats, nothing readable">
-<div class="in">
-<img class="logo" src="assets/logo.png" alt="Pierced brass star ball in its oak cradle with one lit aperture">
-<h1>artd-binary-diff-tool</h1>
-<p>The chamber itself, topics set around the curved wall in the order a visitor would walk them. One pattern of points laid against another, and the eye finds where they differ.</p>
-<nav>
-<a class="disc" href="#panel1"><span>The comparison</span></a>
-<a class="disc" href="#panel2"><span>How it is made</span></a>
-<a class="disc" href="#panel4"><span>Calling it</span></a>
-<a class="disc" href="#panel6"><span>The known limit</span></a>
-</nav>
-</div>
+  <img class="hero-logo" src="assets/logo.png" alt="A cream player piano roll curving over a brass tracker bar, one red felt ring lying on the paper over a slot">
+  <h1>artd-binary-diff-tool</h1>
+  <p class="tagline">The Roll Comparison. Compares two binary files and reports the differences in their disassembled code, for vulnerability analysis and patch diffing.</p>
+  <div class="btns">
+    <a class="btn solid" href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool">The repository</a>
+    <a class="btn" href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool/blob/main/main.py">main.py</a>
+  </div>
 </header>
-<main>
-<section class="case" id="panel1"><h2>Two Binaries, One Report of Differences</h2>
-<p>artd-binary-diff-tool compares two binary files and reports the differences in their disassembled code, for vulnerability analysis and patch diffing.</p>
-<p>Two purposes only are named in the source, and this panel names those two and no others.</p>
-</section>
-<div class="pin"></div>
-<section class="case" id="panel2"><h2>How the Comparison Is Made</h2>
-<p>Parsed with LIEF. Disassembled with Capstone. Keyed by Address.</p>
-<p>The tool parses each binary with LIEF, disassembles its executable sections with Capstone, and reports the differences keyed by address, in three shapes:</p>
-<p>Added instructions: present in the second binary, not at that address in the first.</p>
-<p>Removed instructions: present in the first binary, gone at that address in the second.</p>
-<p>Modified instructions: the same address carrying a different instruction.</p>
-<p>Together those three are the entire shape of the report.</p>
-</section>
-<div class="pin"></div>
-<section class="case" id="panel3"><h2>Getting It Running</h2>
-<pre>git clone https://github.com/ShadowGuard-AI/artd-binary-diff-tool
-cd artd-binary-diff-tool
-pip install -r requirements.txt</pre>
-<p>This repository's clone line names the correct account, ShadowGuard-AI. That is noted here as a plain fact, in contrast to lines a visitor may have met elsewhere in this fleet.</p>
-</section>
-<div class="pin"></div>
-<section class="case" id="panel4"><h2>Calling the Comparison</h2>
-<pre>python3 main.py FILE1 FILE2 [-a ARCH] [-o OUTPUT] [-v]</pre>
-<p>FILE1 is the first binary file to compare and FILE2 is the second.</p>
-<div class="cards">
-<div class="case"><h3>-h</h3><p>Shows help and exits.</p></div>
-<div class="case"><h3>-a, --architecture</h3><p>Takes x86 as the default, with x64, arm, and arm64 as the other choices.</p></div>
-<div class="case"><h3>-o, --output</h3><p>Names a file to save the diff results to. Without it, the diff prints to console.</p></div>
-<div class="case"><h3>-v, --verbose</h3><p>Turns on verbose logging.</p></div>
+
+<figure>
+  <img src="assets/intro-banner.png" alt="Two player piano rolls turning on parallel spindles inside an open piano case, the near roll's slot pattern running denser than the far roll's across the brass tracker bar">
+  <figcaption>Two rolls over one bar. Each binary is parsed with LIEF and its executable sections are disassembled with Capstone before the two are compared.</figcaption>
+</figure>
+
+<div class="facts">
+  <div class="fact"><b>Parses with</b>LIEF, for the binary structure</div>
+  <div class="fact"><b>Disassembles with</b>Capstone, over the executable sections</div>
+  <div class="fact"><b>Reports</b>Added, removed, and modified instructions, keyed by address</div>
+  <div class="fact"><b>Licence</b>MIT License, see LICENSE in the repository</div>
 </div>
+
+<section>
+  <h2>Usage</h2>
+  <pre>python3 main.py FILE1 FILE2 [-a ARCH] [-o OUTPUT] [-v]</pre>
+  <table>
+    <tr><th>Parameter</th><th>What it does</th></tr>
+    <tr><td><code>FILE1</code></td><td>The first binary file to compare.</td></tr>
+    <tr><td><code>FILE2</code></td><td>The second binary file to compare.</td></tr>
+    <tr><td><code>-a</code>, <code>--architecture</code></td><td>Architecture of the binary files: x86 (default), x64, arm, or arm64.</td></tr>
+    <tr><td><code>-o</code>, <code>--output</code></td><td>Output file to save the diff results. If not provided, the diff prints to console.</td></tr>
+    <tr><td><code>-v</code>, <code>--verbose</code></td><td>Enable verbose logging.</td></tr>
+    <tr><td><code>-h</code></td><td>Show help message and exit.</td></tr>
+  </table>
 </section>
-<div class="pin"></div>
-<section class="case" id="panel5"><h2>What Was and Was Not Verified</h2>
-<p>A missing input file, or a path that is not a file, exits 1.</p>
-<div class="frame"><h3>Live Run Not Possible in the Documenting Environment</h3>
-<p>The source carries its own candour in full: a live run was not possible in the documenting environment because the lief and capstone packages are not installed there and installs were not permitted in that wave, the parameter list was taken from the argument parser in main.py, and the file compiles cleanly.</p></div>
-<p>No sample diff, timing, or success story is shown on this wall, because the source offers none.</p>
+
+<figure>
+  <img src="assets/banner.png" alt="Two player piano rolls of different ages lying side by side on a long brass tracker bar over a lightbox in a repair workshop, one red felt ring resting on the nearer roll">
+  <figcaption>Laid side by side over the light, the two patterns can be read against each other slot by slot.</figcaption>
+</figure>
+
+<section class="hold">
+  <h2>Stated limits</h2>
+  <ul>
+    <li>The diff is keyed on absolute addresses with no alignment of the two instruction streams, so one inserted instruction early in a function can read as many added and removed instructions rather than one modified spot.</li>
+    <li>A missing input file, or a path that is not a file, exits 1.</li>
+    <li>A live run was not possible in the documenting environment: the lief and capstone packages are not installed there. The parameter list is taken from the argument parser in main.py, and the file compiles cleanly.</li>
+  </ul>
 </section>
-<div class="pin"></div>
-<section class="case" id="panel6"><h2>The Known Limit</h2>
-<div class="frame"><h3>No Alignment of the Two Instruction Streams</h3>
-<p>The diff is keyed on absolute addresses with no alignment of the two instruction streams, so one inserted instruction early in a function can read as many added and removed instructions rather than one modified spot. The limit is given a panel of its own here, rather than a footnote.</p></div>
-<p>Licence closes the circuit of the wall: MIT License, See LICENSE.</p>
-<p><a href="https://github.com/ShadowGuard-AI/artd-binary-diff-tool">The repository on GitHub</a></p>
-</section>
-</main>
-<footer><p>Theme: The Planetarium's Star Ball. Type: Badeen Display for headings, Bitter for reading, both SIL Open Font License 1.1. The lettering reference Techno Sphere was reference only and is not embedded.</p></footer>
+
+<footer>
+  <p>artd-binary-diff-tool is released under the MIT License. See LICENSE in the repository. Site type is set in Marko One and Maitree, self-hosted under the SIL Open Font License.</p>
+</footer>
+</div>
 </body>
 </html>
