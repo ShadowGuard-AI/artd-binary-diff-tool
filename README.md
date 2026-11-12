@@ -9,7 +9,6 @@
 ![Chamber scene: brightness travels across one projected cluster while the star ball turns a fraction](scene.svg)
 
 
-# artd-Binary-Diff-Tool
 Compares two binary files and reports the differences in their disassembled code, for vulnerability analysis and patch diffing.
 
 
@@ -19,7 +18,7 @@ Compares two binary files and reports the differences in their disassembled code
 
 > Chart frame: this clone line names the correct ShadowGuard-AI account, stated as a plain fact.
 
-```
+```sh
 git clone https://github.com/ShadowGuard-AI/artd-binary-diff-tool
 cd artd-binary-diff-tool
 pip install -r requirements.txt
@@ -32,7 +31,7 @@ pip install -r requirements.txt
 
 > Chart frame: a missing input file, or a path that is not a file, exits 1.
 
-```
+```sh
 python3 main.py FILE1 FILE2 [-a ARCH] [-o OUTPUT] [-v]
 ```
 
@@ -63,4 +62,4 @@ python3 main.py FILE1 FILE2 [-a ARCH] [-o OUTPUT] [-v]
 ![Major section divider](sep-heavy.svg)
 
 ## License
-MIT License, see LICENSE.
+MIT License, see [LICENSE](LICENSE).
